@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LotteryApp</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F0F0F0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        .header {
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .lottery-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .lottery-numbers {
+            display: flex;
+            justify-content: center;
+        }
+        .lottery-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            position: relative;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+        .lottery-number::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        #recommendation-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF5733;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Estilo personalizado para el campo de fecha */
+        input[type="date"] {
+            font-size: 18px;
+            padding: 8px 16px;
+            background-color: #f8f9fa;
+            border: 2px solid #007BFF;
+            border-radius: 25px;
+            color: #007BFF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: auto;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        input[type="date"]:hover {
+            background-color: #007BFF;
+            color: blue;
+            box-shadow: 0px 6px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #FF5733;
+            background-color: #fff;
+            box-shadow: 0px 6px 12px rgba(255, 87, 51, 0.4);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            color: transparent;
+            background: url('https://cdn-icons-png.flaticon.com/512/1160/1160154.png') no-repeat center;
+            background-size: 18px 18px;
+            cursor: pointer;
+        }
+
+        input[type="date"]:hover::-webkit-calendar-picker-indicator {
+            background-size: 24px 24px;
+        }
+
+        input[type="date"]::-webkit-inner-spin-button,
+        input[type="date"]::-webkit-clear-button {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-0">
+        <div class="header col-12 col-sm-10 col-md-8 col-lg-6 mx-auto my-4">
+            <h2>LotteryApp - Análisis y Pronósticos De Números</h2>
+        </div>
+      <span style="color: black; font-size: 14px; font-weight: bold;" id="recommendation-text">Pronósticos Solo Para Las Americanas.</span>
+      <br>
+          <span style="font-weight bold; color: green; font-zise 4px";>Florida Tarde Y Noche.</span>
+            <br>
+        <span style="font-weight bold; color: blue; font-zise 4px";>New York Tarde y Noche.</span>
+      
+        <div class="lottery-container col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+            <p>
+                <span style="font-size: 24px; font-weight: bold;" id="recommendation-text">Pronósticos Para Hoy:</span>
+                <input type="date" id="fecha" value="">
+            </p>
+            <div class="lottery-numbers" id="lottery-numbers">
+                <!-- Números se cargarán aquí automáticamente -->
+            </div>
+          <p style="color: red; font-zise: 5px; font-weight: bold;">Puedes Voltear 🔄 Estos Números Si Lo Prefieres!</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Función para formatear la fecha como DD-MM-YYYY
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');  // Día con dos dígitos
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos
+            const year = date.getFullYear();  // Año con cuatro dígitos
+            return `${day}-${month}-${year}`;  // Fecha en formato DD-MM-YYYY
+        }
+
+        // Función para obtener la fecha en formato YYYY-MM-DD para el input de tipo "date"
+        function getDateForInput(date) {
+            const day = String(date.getDate()).padStart(2, '0'); 
+            const month = String(date.getMonth() + 1).padStart(2, '0'); 
+            const year = date.getFullYear();  
+            return `${year}-${month}-${day}`;  
+        }
+
+        // Obtener la fecha actual y formatearla
+        const currentDate = new Date();
+        const formattedDate = formatDate(currentDate);
+        const inputFormattedDate = getDateForInput(currentDate);
+
+        // Insertar la fecha actual en el campo de tipo "date" en formato yyyy-mm-dd
+        document.getElementById('fecha').value = inputFormattedDate;
+
+        // Función para cargar los números de predicción desde el archivo JSON
+        async function loadPredicciones(fechaSeleccionada) {
+            try {
+                // Cargar el archivo JSON
+                const response = await fetch('predicciones-americanas.json');
+                const data = await response.json();
+                
+                // Variable para almacenar la predicción del día, si se encuentra
+                let prediccionHoy = null;
+                
+                // Recorremos cada entrada en el archivo JSON
+                data.forEach(entry => {
+                    // Revisamos si alguna de las fechas del grupo coincide con la fecha seleccionada
+                    if (entry.fechas.some(fecha => fecha === fechaSeleccionada)) {
+                        prediccionHoy = entry.prediccion;
+                    }
+                });
+
+                const numerosContainer = document.getElementById('lottery-numbers');
+                numerosContainer.innerHTML = '';  // Limpiar cualquier contenido previo
+
+                // Si se encuentra la predicción para la fecha seleccionada, mostrar los números
+                if (prediccionHoy) {
+                    // Ordenar los números de menor a mayor
+                    prediccionHoy.sort((a, b) => a - b);
+
+                    prediccionHoy.forEach(numero => {
+                        const numberElement = document.createElement('div');
+                        numberElement.className = 'lottery-number';
+                        numberElement.textContent = numero;
+                        numerosContainer.appendChild(numberElement);
+                    });
+                } else {
+                    // Si no hay predicciones, mostrar los bolos vacíos con guiones (-)
+                    for (let i = 0; i < 5; i++) {
+                        const numberElement = document.createElement('div');
+                        numberElement.className = 'lottery-number';
+                        numberElement.textContent = '-';  // Mostrar guion (-)
+                        numerosContainer.appendChild(numberElement);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar las predicciones:', error);
+            }
+        }
+
+        // Cargar predicciones al cargar la página
+        loadPredicciones(formattedDate);
+
+        // Evento para cargar nuevas predicciones al cambiar la fecha
+        document.getElementById('fecha').addEventListener('change', function() {
+            const selectedDate = this.value.split('-').reverse().join('-'); // Convertir de yyyy-mm-dd a dd-mm-yyyy
+            loadPredicciones(selectedDate);
+        });
+  </script>
+  <br>
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            text-align: center;
+            padding: 2px;
+            font-weight: bold;
+        }
+
+        h1, h2, {
+            color: #333;
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        h3 {
+            color: blue;  
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+        h4 {
+            color: red;  
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+        h5 {
+          color: blue;
+          text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+           }
+        .fechasPrediccion {
+            background-color: black; 
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+           }
+        /* Nueva sección prominente de predicción */
+        .prediccion-destacada {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.5em;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo de los bolos de lotería */
+        .lottery-numbers {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .lottery-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            background-color: red;
+            color: white;
+            position: relative;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .lottery-number::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+
+        /* Tabla principal */
+        table {
+            border-collapse: collapse; 
+            width: 100%;
+            background-color: black; /* Fondo blanco para visibilidad */
+            border-spacing: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1.5px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1em;
+        }
+
+        /* Ajuste del color de las filas */
+        .number-row td {
+            background-color: #e0e0e0;
+            color: blue;
+            font-weight: bold;
+        }
+
+        .frequency-row td {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+        }
+
+        td {
+            transition: background-color 0.3s ease;
+        }
+
+        .number-row td:hover {
+            background-color: #d1c4e9;
+            color: #0d47a1;
+        }
+
+        .frequency-row td:hover {
+            background-color: #eceff1;
+            color: #000;
+        }
+
+        @media (max-width: 700px) {
+            th, td {
+                padding: 7.5px;
+                font-size: 1em;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+    <script>
+        async function cargarArchivos(archivos, intentos = 3) {
+            for (const archivo of archivos) {
+                let cargado = false;
+                let intento = 0;
+
+                while (!cargado && intento < intentos) {
+                    try {
+                        console.log(`Intentando cargar ${archivo} (Intento ${intento + 1})`);
+                        await cargarArchivo(archivo);
+                        console.log(`${archivo} cargado con éxito.`);
+                        cargado = true;
+                    } catch (error) {
+                        intento++;
+                        console.error(`Error cargando ${archivo}:`, error);
+
+                        if (intento >= intentos) {
+                            console.error(`Fallo al cargar ${archivo} después de ${intentos} intentos.`);
+                        } else {
+                            console.warn(`Reintentando cargar ${archivo}...`);
+                        }
+                    }
+                }
+            }
+        }
+
+        function cargarArchivo(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error(`Error al cargar el archivo ${src}`));
+
+                document.head.appendChild(script);
+            });
+        }
+
+        const archivosARecargar = ['load_files.php'];
+        cargarArchivos(archivosARecargar);
+    </script>
+<!-- Sección de predicción destacada movida al inicio -->
+<div class="prediccion-destacada">
+    <h5 style="color: white;">Recomendaciones Para Los Próximos Tres Días:<br>Del <span id="fechas-prediccion"></span></h5>
+
+    <!-- Contenedor de los bolos de lotería -->
+    <div class="lottery-numbers" id="numeros-prediccion"></div>
+</div>
+
+<h2>Números Calientes y Fríos</h2>
+<table class="horizontal-table">
+    <thead>
+        <tr>
+            <th colspan="10">Números Calientes</th>
+        </tr>
+        <tr class="number-row" id="fila-numeros-calientes"></tr>
+        <tr class="frequency-row" id="fila-frecuencia-calientes"></tr>
+        <tr>
+            <th colspan="10">Números Fríos</th>
+        </tr>
+        <tr class="number-row" id="fila-numeros-frios"></tr>
+        <tr class="frequency-row" id="fila-frecuencia-frios"></tr>
+    </thead>
+</table>
+<h2>Estadísticas Clave</h2>
+<p id="estadisticas-clave"></p>
+
+<h3>Porcentaje de Aciertos</h3>
+<p id="porcentaje-aciertos"></p>
+
+<h3>Conteo de Aciertos</h3>
+<p id="conteo-aciertos"></p>
+
+<h2>Gráfico de Frecuencia de Números</h2>
+<canvas id="frecuenciaNumeros"></canvas>
+
+<h2>Gráfico de Estadísticas Clave</h2>
+<canvas id="graficoEstadisticas"></canvas>
+
+<h2>Gráfico de Porcentaje de Aciertos</h2>
+<canvas id="graficoAciertos"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('analisis-americanas.php')
+            .then(response => response.json())
+            .then(estadisticas => {
+                const filaNumerosCalientes = document.getElementById('fila-numeros-calientes');
+                const filaFrecuenciaCalientes = document.getElementById('fila-frecuencia-calientes');
+                const filaNumerosFrios = document.getElementById('fila-numeros-frios');
+                const filaFrecuenciaFrios = document.getElementById('fila-frecuencia-frios');
+                
+                const numerosCalientesOrdenados = Object.entries(estadisticas.calientes).sort(([a], [b]) => a - b);
+                const numerosFriosOrdenados = Object.entries(estadisticas.frios).sort(([a], [b]) => a - b);
+
+                numerosCalientesOrdenados.forEach(([numero, frecuencia]) => {
+                    filaNumerosCalientes.innerHTML += `<td>${numero}</td>`;
+                    filaFrecuenciaCalientes.innerHTML += `<td>${frecuencia}</td>`;
+                });
+
+                numerosFriosOrdenados.forEach(([numero, frecuencia]) => {
+                    filaNumerosFrios.innerHTML += `<td>${numero}</td>`;
+                    filaFrecuenciaFrios.innerHTML += `<td>${frecuencia}</td>`;
+                });
+
+                const estadisticasClave = document.getElementById('estadisticas-clave');
+                estadisticasClave.innerHTML = `
+                    <p>Media: ${estadisticas.media.toFixed(2)}</p>
+                    <p>Mediana: ${estadisticas.mediana}</p>
+                    <p>Moda: ${estadisticas.moda}</p>
+                    <p>Desviación Estándar: ${estadisticas.desviacion_estandar.toFixed(2)}</p>
+                    <p>Varianza: ${estadisticas.varianza.toFixed(2)}</p>
+                    <p>Rango: ${estadisticas.rango}</p>
+                    <p>Coeficiente de Variación: ${estadisticas.coeficiente_variacion.toFixed(2)}</p>
+                `;
+
+                const fechasPrediccion = document.getElementById('fechas-prediccion');
+                fechasPrediccion.innerText = `${estadisticas.fechas_prediccion[0]} al ${estadisticas.fechas_prediccion[2]}.`;
+
+                // Mostrar los números de la predicción en forma de bolos
+                const numerosPrediccionContainer = document.getElementById('numeros-prediccion');
+                numerosPrediccionContainer.innerHTML = ''; 
+                Object.keys(estadisticas.prediccion_tres_dias).forEach(numero => {
+                    const numberElement = document.createElement('div');
+                    numberElement.className = 'lottery-number';
+                    numberElement.textContent = numero;
+                    numerosPrediccionContainer.appendChild(numberElement);
+                });
+
+                const porcentajeAciertos = document.getElementById('porcentaje-aciertos');
+                porcentajeAciertos.innerText = ` ${estadisticas.porcentaje_aciertos.toFixed(2)}%`;
+
+                const conteoAciertos = document.getElementById('conteo-aciertos');
+                conteoAciertos.innerText =`${estadisticas.conteo_aciertos} Acierto/s.`;
+
+                const ctxFrecuencia = document.getElementById('frecuenciaNumeros').getContext('2d');
+                new Chart(ctxFrecuencia, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(estadisticas.calientes).concat(Object.keys(estadisticas.frios)),
+                        datasets: [{
+                            label: 'Frecuencia de Números',
+                            data: Object.values(estadisticas.calientes).concat(Object.values(estadisticas.frios)),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                const ctxEstadisticas = document.getElementById('graficoEstadisticas').getContext('2d');
+                new Chart(ctxEstadisticas, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Media', 'Mediana', 'Desviación Estándar', 'Varianza'],
+                        datasets: [{
+                            data: [
+                                estadisticas.media.toFixed(2),
+                                estadisticas.mediana,
+                                estadisticas.desviacion_estandar.toFixed(2),
+                                estadisticas.varianza.toFixed(2)
+                            ],
+                            backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 159, 64, 0.6)', 
+                                            'rgba(153, 102, 255, 0.6)', 'rgba(255, 205, 86, 0.6)'],
+                            borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)', 
+                                          'rgba(153, 102, 255, 1)', 'rgba(255, 205, 86, 1)'],
+                            borderWidth: 1
+                        }]
+                    }
+                });
+
+                const ctxAciertos = document.getElementById('graficoAciertos').getContext('2d');
+                new Chart(ctxAciertos, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Porcentaje de Aciertos'],
+                        datasets: [{
+                            label: 'Aciertos (%)',
+                            data: [estadisticas.porcentaje_aciertos.toFixed(2)],
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando las estadísticas:', error);
+            });
+    });
+</script>
+</body>
+</html>
